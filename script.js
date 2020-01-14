@@ -31,6 +31,9 @@ window.onload = function () {
     if (sneeky.checkCollision()) {
 
     } else {
+      if (sneeky.isEatingApple(applee)) {
+        applee.setNewPosition();
+      }
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     sneeky.draw();
     applee.draw();
@@ -121,7 +124,15 @@ window.onload = function () {
         }
       }
       return wallCollision || snakeCollision;
-    }
+    };
+    this.isEatingApple = (appleToEat) => {
+      let head = this.body[0];
+      if(head[0] === appleToEat.position[0] && head[1] === appleToEat.position[1]) {
+        return true;
+      } else {
+        return false;
+      }
+    };
   }
 
   function Apple(position) {
@@ -131,11 +142,20 @@ window.onload = function () {
       ctx.fillStyle = "#33cc33";
       ctx.beginPath();
       const radius = blockSize / 2;
-      let x = position[0] * blockSize + radius;
-      let y = position[1] * blockSize + radius;
+      let x = this.position[0] * blockSize + radius;
+      let y = this.position[1] * blockSize + radius;
       ctx.arc(x, y, radius, 0, Math.PI * 2, true);
       ctx.fill();
       ctx.restore();
+    };
+    this.setNewPosition = () => {
+      let newX = Math.round(Math.random() * (widthInBlocks - 1));
+      let newY = Math.round(Math.random() * (heightInBlocks - 1));
+      this.position = [newX, newY];
+    };
+
+    this.onSnake = () => {
+      
     }
   }
 
