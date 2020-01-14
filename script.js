@@ -6,6 +6,9 @@ window.onload = function () {
   let ctx;
   let delay = 100;
   let sneeky;
+  let applee;
+  const widthInBlocks = canvasWidth / blockSize;
+  const heightInBlocks = canvasHeight / blockSize;
 
   init();
 
@@ -18,14 +21,21 @@ window.onload = function () {
 
     ctx = canvas.getContext('2d');
     sneeky = new Snake([[6, 4], [5, 4], [4, 4]], "right");
+    applee = new Apple([10,10]);
     refreshCanvas();
   }
 
   function refreshCanvas() {
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    
     sneeky.advance();
+    if (sneeky.checkCollision()) {
+
+    } else {
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     sneeky.draw();
-    setTimeout(refreshCanvas, delay)
+    applee.draw();
+    setTimeout(refreshCanvas, delay);
+    }
   }
 
   function drawBlock(ctx, position) {
@@ -86,12 +96,49 @@ window.onload = function () {
         this.direction = newDirection;
       }
     };
+
+    this.checkCollision = function() {
+      let wallCollision = false;
+      let snakeCollision = false;
+      let head = this.body[0];
+      let rest = this.body.slice(1);
+      let snakeX = head[0];
+      let snakeY = head[1];
+      const minX = 0;
+      const minY = 0;
+      const maxX = widthInBlocks - 1;
+      const maxY = widthInBlocks - 1;
+      let isNotBetweenHorizontalWalls = snakeX < minX || snakeX > maxX;
+      let isNotBetweenVerticalWalls = snakeY < minY || snakeY > maxY;
+
+      if(isNotBetweenHorizontalWalls || isNotBetweenVerticalWalls) {
+        wallCollision = true;
+      };
+
+      for (let i = 0; i < rest.length; i++) {
+        if (snakeX === rest[i][0] && snakeY === rest[i][1]) {
+          snakeCollision = true;
+        }
+      }
+      return wallCollision || snakeCollision;
+    }
   }
 
-  function Apple() {
-
+  function Apple(position) {
+    this.position = position;
+    this.draw = function() {
+      ctx.save();
+      ctx.fillStyle = "#33cc33";
+      ctx.beginPath();
+      const radius = blockSize / 2;
+      let x = position[0] * blockSize + radius;
+      let y = position[1] * blockSize + radius;
+      ctx.arc(x, y, radius, 0, Math.PI * 2, true);
+      ctx.fill();
+      ctx.restore();
+    }
   }
-  
+
   document.onkeydown = function handleKeyDown(e) {
     let key = e.keyCode;
     let newDirection;
