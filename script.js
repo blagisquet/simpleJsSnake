@@ -9,17 +9,22 @@ window.onload = () => {
   let applee;
   const widthInBlocks = canvasWidth / blockSize;
   const heightInBlocks = canvasHeight / blockSize;
+  let score;
 
   const init = () => {
     canvas = document.createElement('canvas');
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
-    canvas.style.border = "1px solid";
+    canvas.style.border = "10px solid";
+    canvas.style.margin = "50px auto";
+    canvas.style.display = "block";
+    canvas.style.backgroundColor = "#ddd";
     document.body.appendChild(canvas);
 
     ctx = canvas.getContext('2d');
     sneeky = new Snake([[6, 4], [5, 4], [4, 4]], "right");
     applee = new Apple([10, 10]);
+    score = 0;
     refreshCanvas();
   }
 
@@ -32,15 +37,48 @@ window.onload = () => {
     } else {
       if (sneeky.isEatingApple(applee)) {
         sneeky.ateApple = true;
+        score++;
         do {
           applee.setNewPosition();
         } while (applee.isOnSnake(sneeky))
       }
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      drawScore();
       sneeky.draw();
       applee.draw();
       setTimeout(refreshCanvas, delay);
     }
+  }
+
+  let gameOver = () => {
+    ctx.save();
+    ctx.font = "bold 25px sans-serif";
+    ctx.fillStyle = "gray";
+    ctx.textAlign = "center";
+    const centreX = canvasWidth / 2;
+    const centreY = canvasHeight / 2;
+    ctx.fillText("Game Over", centreX, centreY + 55);
+    ctx.fillText("Appuyer sur la touche espace pour rejouer", centreX, centreY + 80);
+    ctx.restore();
+  }
+
+  let restart = () => {
+    sneeky = new Snake([[6, 4], [5, 4], [4, 4]], "right");
+    applee = new Apple([10, 10]);
+    score = 0;
+    refreshCanvas();
+  }
+
+  function drawScore() {
+    ctx.save();
+    ctx.font = "bold 100px sans-serif";
+    ctx.fillStyle = "gray";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const centreX = canvasWidth / 2;
+    const centreY = canvasHeight / 2;
+    ctx.fillText(score.toString(), centreX, centreY);
+    ctx.restore();
   }
 
   function drawBlock(ctx, position) {
@@ -117,7 +155,7 @@ window.onload = () => {
       const minX = 0;
       const minY = 0;
       const maxX = widthInBlocks - 1;
-      const maxY = widthInBlocks - 1;
+      const maxY = widthInBlocks - 11;
       let isNotBetweenHorizontalWalls = snakeX < minX || snakeX > maxX;
       let isNotBetweenVerticalWalls = snakeY < minY || snakeY > maxY;
 
@@ -190,6 +228,9 @@ window.onload = () => {
       case 40:
         newDirection = "down";
         break;
+      case 32:
+        restart();
+        return;
       default:
         return;
     }
