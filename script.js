@@ -1,4 +1,4 @@
-window.onload = function () {
+window.onload = () => {
 
   let canvasWidth = 900;
   let canvasHeight = 600;
@@ -10,9 +10,7 @@ window.onload = function () {
   const widthInBlocks = canvasWidth / blockSize;
   const heightInBlocks = canvasHeight / blockSize;
 
-  init();
-
-  function init() {
+  const init = () => {
     canvas = document.createElement('canvas');
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
@@ -25,10 +23,12 @@ window.onload = function () {
     refreshCanvas();
   }
 
+  init();
+
   function refreshCanvas() {
     sneeky.advance();
     if (sneeky.checkCollision()) {
-
+      gameOver();
     } else {
       if (sneeky.isEatingApple(applee)) {
         sneeky.ateApple = true;
@@ -62,7 +62,7 @@ window.onload = function () {
       ctx.restore();
     };
 
-    this.advance = function () {
+    this.advance = () => {
       let nextPosition = this.body[0].slice();
       switch (this.direction) {
         case "left":
@@ -88,7 +88,7 @@ window.onload = function () {
       }
     };
 
-    this.setDirection = function (newDirection) {
+    this.setDirection = (newDirection) => {
       let allowedDirections;
       switch (this.direction) {
         case "left":
@@ -107,7 +107,7 @@ window.onload = function () {
       }
     };
 
-    this.checkCollision = function () {
+    this.checkCollision = () => {
       let wallCollision = false;
       let snakeCollision = false;
       let head = this.body[0];
@@ -144,7 +144,7 @@ window.onload = function () {
 
   function Apple(position) {
     this.position = position;
-    this.draw = function () {
+    this.draw = () => {
       ctx.save();
       ctx.fillStyle = "#33cc33";
       ctx.beginPath();
@@ -155,6 +155,7 @@ window.onload = function () {
       ctx.fill();
       ctx.restore();
     };
+
     this.setNewPosition = () => {
       let newX = Math.round(Math.random() * (widthInBlocks - 1));
       let newY = Math.round(Math.random() * (heightInBlocks - 1));
@@ -164,7 +165,7 @@ window.onload = function () {
     this.isOnSnake = (snakeToCheck) => {
       let isOnSnake = false;
 
-      for (var i = 0; i < snakeToCheck.body.length; i++) {
+      for (let i = 0; i < snakeToCheck.body.length; i++) {
         if (this.position[0] === snakeToCheck.body[i][0] && this.position[1] === snakeToCheck.body[i][1]) {
           isOnSnake = true;
         }
