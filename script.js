@@ -21,23 +21,25 @@ window.onload = function () {
 
     ctx = canvas.getContext('2d');
     sneeky = new Snake([[6, 4], [5, 4], [4, 4]], "right");
-    applee = new Apple([10,10]);
+    applee = new Apple([10, 10]);
     refreshCanvas();
   }
 
   function refreshCanvas() {
-    
     sneeky.advance();
     if (sneeky.checkCollision()) {
 
     } else {
       if (sneeky.isEatingApple(applee)) {
-        applee.setNewPosition();
+        sneeky.ateApple = true;
+        do {
+          applee.setNewPosition();
+        } while (applee.isOnSnake(sneeky))
       }
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    sneeky.draw();
-    applee.draw();
-    setTimeout(refreshCanvas, delay);
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      sneeky.draw();
+      applee.draw();
+      setTimeout(refreshCanvas, delay);
     }
   }
 
@@ -50,6 +52,7 @@ window.onload = function () {
   function Snake(body, direction) {
     this.body = body;
     this.direction = direction;
+    this.ateApple = false;
     this.draw = function () {
       ctx.save();
       ctx.fillStyle = "#ff0000";
@@ -78,7 +81,11 @@ window.onload = function () {
           throw ("Invalid direction");
       }
       this.body.unshift(nextPosition);
-      this.body.pop();
+      if (!this.ateApple) {
+        this.body.pop();
+      } else {
+        this.ateApple = false;
+      }
     };
 
     this.setDirection = function (newDirection) {
@@ -100,7 +107,7 @@ window.onload = function () {
       }
     };
 
-    this.checkCollision = function() {
+    this.checkCollision = function () {
       let wallCollision = false;
       let snakeCollision = false;
       let head = this.body[0];
@@ -114,7 +121,7 @@ window.onload = function () {
       let isNotBetweenHorizontalWalls = snakeX < minX || snakeX > maxX;
       let isNotBetweenVerticalWalls = snakeY < minY || snakeY > maxY;
 
-      if(isNotBetweenHorizontalWalls || isNotBetweenVerticalWalls) {
+      if (isNotBetweenHorizontalWalls || isNotBetweenVerticalWalls) {
         wallCollision = true;
       };
 
@@ -127,7 +134,7 @@ window.onload = function () {
     };
     this.isEatingApple = (appleToEat) => {
       let head = this.body[0];
-      if(head[0] === appleToEat.position[0] && head[1] === appleToEat.position[1]) {
+      if (head[0] === appleToEat.position[0] && head[1] === appleToEat.position[1]) {
         return true;
       } else {
         return false;
@@ -137,7 +144,7 @@ window.onload = function () {
 
   function Apple(position) {
     this.position = position;
-    this.draw = function() {
+    this.draw = function () {
       ctx.save();
       ctx.fillStyle = "#33cc33";
       ctx.beginPath();
@@ -154,8 +161,15 @@ window.onload = function () {
       this.position = [newX, newY];
     };
 
-    this.onSnake = () => {
-      
+    this.isOnSnake = (snakeToCheck) => {
+      let isOnSnake = false;
+
+      for (var i = 0; i < snakeToCheck.body.length; i++) {
+        if (this.position[0] === snakeToCheck.body[i][0] && this.position[1] === snakeToCheck.body[i][1]) {
+          isOnSnake = true;
+        }
+      }
+      return isOnSnake;
     }
   }
 
